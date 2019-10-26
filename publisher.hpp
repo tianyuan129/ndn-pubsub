@@ -1,7 +1,7 @@
 // 2019 Tianyuan Yu
 
-#ifndef NDND_PUBLISHER_HPP
-#define NDND_PUBLISHER_HPP
+#ifndef ndn_PUBLISHER_HPP
+#define ndn_PUBLISHER_HPP
 
 #include <map>
 
@@ -10,13 +10,13 @@
 #include <ndn-cxx/util/scheduler.hpp>
 #include <ndn-cxx/util/time.hpp>
 
-namespace ndnd {
+namespace ndn {
 
 class Publisher
 {
 public:
 
-  Publisher(const ndn::Name& pubPrefix, ndn::Face& face);
+  Publisher(ndn::Face& face);
 
   void
   publish(const ndn::Name& pubPrefix, ndn::Data& Data);
@@ -37,11 +37,7 @@ private:
 
 private:
   ndn::Face& m_face;
-
-  ndn::Name m_pubPrefix;
-  ndn::Name m_pubInterestPrefix;
-
-  ndn::Name m_pubDataName;
+  
   // Store sequence number for the prefix.
   std::map<ndn::Name, ndn::Data> m_pubList;
 };

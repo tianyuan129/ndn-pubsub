@@ -7,20 +7,14 @@
 
 #include <boost/algorithm/string.hpp>
 
-namespace ndnd {
+namespace ndn {
 
-NDN_LOG_INIT(ndnd.Subscriber);
+NDN_LOG_INIT(ndn.Subscriber);
 
-Subscriber::Subscriber(const ndn::Name& subPrefix,
-                      ndn::Face& face,
-                      const ReceiveDataCallback& onReceiveData,
-                      unsigned int count,
-                      ndn::time::milliseconds subInterestLifetime = SUB_INTEREST_LIFETIME)
+Subscriber::Subscriber(ndn::Face& face,
+                       ndn::time::milliseconds subInterestLifetime)
  : m_face(face)
  , m_scheduler(m_face.getIoService())
- , m_subPrefix(subPrefix)
- , m_subInterestPrefix(ndn::Name(m_subPrefix).append("hello")) //TODO:
- , m_onReceiveData(onReceiveData)
  , m_subInterestLifetime(subInterestLifetime)
  , m_rng(ndn::random::getRandomNumberEngine())
  , m_rangeUniformRandom(100, 500)
@@ -38,30 +32,18 @@ Subscriber::addSubscription(const ndn::Name& prefix, const ReceiveDataCallback& 
 }
 
 void
-Subscriber::stop()
-{
-  m_scheduler.cancelAllEvents();
-
-  if (m_subFetcher) {
-    m_subFetcher->stop();
-    m_subFetcher.reset();
-  }
-}
-
-void
 Subscriber::sendSubInterest()
 {
-  ndn::Name subInterestName(m_subInterestPrefix);
-
-
-  ndn::Interest subInterest(subInterestName);
-
-  NDN_LOG_DEBUG("sendSubInterest, nonce: " << subInterest.getNonce() <<
+  auto iter = m_subCallbacks.begin();
+  while (iter != m_subCallbacks.end()) {
+    ndn::Interest subInterest(iter->first);
+    m_face.expressInterest(subInterest, bind(&Subscriber::onSubData, this, _1, _2),
+                                    bind(&Subscriber::onSubNack, this, _1, _2),
+                                    bind(&Subscriber::onSubTimeout, this, _1));
+    NDN_LOG_DEBUG("sendSubInterest, nonce: " << subInterest.getNonce() <<
                 " hash: " << std::hash<std::string>{}(subInterest.getName().toUri()));
+  }
 
-  m_face.expressInterest(subInterest, bind(&Subscriber::onSubData, this, _1, _2),
-                                      bind(&Subscriber::onSubNack, this, _1, _2),
-                                      bind(&Subscriber::onSubTimeout, this, _1));
 }
 
 void
@@ -92,4 +74,4 @@ Subscriber::onSubTimeout(const ndn::Interest& subInterest)
 }
 
 
-} //namespace ndnd
+} //namespace ndn

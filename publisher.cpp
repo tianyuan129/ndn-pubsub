@@ -7,16 +7,13 @@
 
 #include <boost/algorithm/string.hpp>
 
-namespace ndnd {
+namespace ndn {
 
-NDN_LOG_INIT(ndnd.Publisher);
+NDN_LOG_INIT(ndn.Publisher);
 
-Publisher::Publisher(const ndn::Name& pubPrefix, ndn::Face& face)
+Publisher::Publisher(ndn::Face& face)
  : m_face(face)
- , m_pubPrefix(pubPrefix)
-{
-   registerPrefix(pubPrefix);
-}
+{}
 
 void
 Publisher::registerPrefix(const ndn::Name& pubPrefix)
@@ -53,4 +50,4 @@ Publisher::onPubInterest(const ndn::Interest& interest)
 }
 
 
-} //namespace ndnd
+} //namespace ndn

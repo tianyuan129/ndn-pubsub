@@ -1,7 +1,7 @@
 // 2019 Tianyuan Yu
 
-#ifndef NDND_SUBSCRIBER_HPP
-#define NDND_SUBSCRIBER_HPP
+#ifndef ndn_SUBSCRIBER_HPP
+#define ndn_SUBSCRIBER_HPP
 
 #include <ndn-cxx/face.hpp>
 #include <ndn-cxx/util/random.hpp>
@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 
-namespace ndnd {
+namespace ndn {
 
 using namespace ndn::literals::time_literals;
 
@@ -24,11 +24,8 @@ class Subscriber
 {
 public:
   
-  Subscriber(const ndn::Name& subPrefix,
-           ndn::Face& face,
-           const ReceiveDataCallback& onReceiveData,
-           unsigned int count,
-           ndn::time::milliseconds helloInterestLifetime = SUB_INTEREST_LIFETIME);
+  Subscriber(ndn::Face& face, ndn::time::milliseconds subInterestLifetime = SUB_INTEREST_LIFETIME);
+  
   void
   sendSubInterest();
 
@@ -64,15 +61,7 @@ private:
 private:
   ndn::Face& m_face;
   ndn::Scheduler m_scheduler;
-  uint32_t m_subDataContentType;
 
-  ndn::Name m_subPrefix;
-  ndn::Name m_subInterestPrefix;
-
-  ndn::Name m_subDataName;
-
-
-  ReceiveDataCallback m_onReceiveData;
 
   ndn::time::milliseconds m_subInterestLifetime;
 
@@ -81,9 +70,8 @@ private:
 
   ndn::random::RandomNumberEngine& m_rng;
   std::uniform_int_distribution<> m_rangeUniformRandom;
-  std::shared_ptr<ndn::util::SegmentFetcher> m_subFetcher;
 };
 
-} // namespace ndnd
+} // namespace ndn
 
-#endif // NDND_SUBSCRIBER_HPP
+#endif // ndn_SUBSCRIBER_HPP
